@@ -190,3 +190,158 @@ Etapa 7 — Agente               → sistema vivo com IA
 ---
 
 *Documentação gerada durante o setup inicial do projeto.*
+
+---
+
+## 8. EDA — Principais Achados (01_eda.ipynb)
+
+### 8.1 Visão geral do dataset
+- **1.067.371 linhas** x **8 colunas**
+- Duas abas no xlsx unificadas: Year 2009-2010 (525.461) + Year 2010-2011 (541.910)
+- Período: Dezembro 2009 a Dezembro 2011
+
+### 8.2 Problemas críticos identificados — a tratar no ETL
+
+| # | Problema | Volume | Ação no ETL |
+|---|----------|--------|-------------|
+| 1 | Customer ID nulo | 243.007 linhas (22,77%) | Remover para análise RFM |
+| 2 | Duplicatas verdadeiras | 34.335 linhas (3,22%) | Remover |
+| 3 | Cancelamentos (Invoice com 'C') | 19.494 linhas (1,83%) | Remover ou análise separada |
+| 4 | Ajustes contábeis (Invoice com 'A') | 5 linhas | Remover |
+| 5 | StockCode não-produto (POST, DOT, M, etc.) | 6.093 linhas | Remover |
+| 6 | Price zero (movimentações internas) | 6.202 linhas | Remover |
+| 7 | Price negativo (bad debt) | 5 linhas | Remover |
+| 8 | Outliers em Quantity | acima do p99 (>100) | Corte no percentil 99 |
+| 9 | Customer ID como float | toda a coluna | Converter para string |
+
+### 8.3 StockCodes não-produto identificados
+
+| StockCode | Descrição | Ação |
+|-----------|-----------|------|
+| POST | Frete | Remover |
+| DOT | Postagem interna | Remover |
+| M | Ajuste manual | Remover |
+| C2 | Custo de envio | Remover |
+| D | Desconto | Remover |
+| S | Amostra grátis | Remover |
+| BANK CHARGES | Taxa bancária | Remover |
+| ADJUST | Ajuste de estoque | Remover |
+| AMAZONFEE | Taxa marketplace | Remover |
+| CRUK | Doação | Remover |
+| TEST001 | Registro de teste | Remover |
+| gift_0001_* | Cartão presente | **Manter** |
+
+### 8.4 Insights de negócio
+
+**Perfil do negócio**
+- Negócio **B2B confirmado** — compras em horário comercial, quantidades de caixa (6, 12, 24)
+- 91,9% das transações são do Reino Unido
+- Ticket médio baixo — 99% dos produtos entre £0,50 e £18,00
+
+**Sazonalidade**
+- Pico em Novembro (Black Friday + pré-Natal) — padrão consistente em 2010 e 2011
+- Queda brusca em Janeiro/Fevereiro — maior risco de churn
+- Retomada gradual a partir de Setembro
+
+**Janela de compra**
+- Dia da semana: Quinta-feira é o pico, Saturday/Sunday zerados
+- Hora do dia: pico ao meio-dia, movimento entre 8h e 17h
+
+**Concentração de receita — Lei de Pareto**
+
+| Faixa de clientes | % da Receita |
+|-------------------|--------------|
+| Top 10% | 53,9% |
+| Top 20% | 70,6% |
+| Top 30% | 80,8% |
+| Top 50% | 92,0% |
+
+**Perfis geográficos**
+- Reino Unido: mercado principal, alta frequência
+- EIRE (Irlanda): apenas 5 clientes, comportamento atacadista — VIP B2B
+- Europa: mercado secundário, comportamento similar entre si
+
+**Perfis de clientes extremos**
+- Cliente 14911: 398 pedidos, £57.753 — provável distribuidor
+- Cliente 15760: 2 pedidos, £13.916 — alto valor unitário, investigar
+- Mediana de 3 pedidos por cliente — maioria compra pouco
+
+**Estratégias de negócio identificadas**
+- Contato ideal: Quinta-feira entre 10h e 12h
+- Campanhas de reativação: Janeiro (pós-churn sazonal)
+- Ofertas antecipadas: Agosto (antes do pico)
+- Proteção VIP: Top 10% de clientes = 53,9% da receita
+
+---
+
+## 9. Roadmap do Projeto
+
+```
+✅ Etapa 0 — Estrutura e ambiente
+✅ Etapa 1 — EDA (01_eda.ipynb)
+⏭️ Etapa 2 — Preprocessing / ETL (02_preprocessing.ipynb)
+   Etapa 3 — Feature Engineering — RFM
+   Etapa 4 — Clusterização — K-Means
+   Etapa 5 — Classificação — churn/conversão
+   Etapa 6 — Pipeline automatizado
+   Etapa 7 — Agente com IA
+```
+
+---
+
+## 10. Resultados do EDA — `01_eda.ipynb`
+
+### Visão geral do dataset
+- **Total de linhas:** 1.067.371 (Year 2009-2010: 525.461 + Year 2010-2011: 541.910)
+- **Total de colunas:** 8
+- **Clientes únicos identificados:** 5.878
+- **Período:** Dezembro/2009 a Dezembro/2011
+
+### Problemas críticos — a tratar no ETL
+
+| # | Problema | Volume | Ação |
+|---|----------|--------|------|
+| 1 | Customer ID nulo | 243.007 linhas (22,77%) | Remover para análise RFM |
+| 2 | Duplicatas verdadeiras | 34.335 linhas (3,22%) | Remover |
+| 3 | Cancelamentos Invoice 'C' | 19.494 linhas (1,83%) | Remover / guardar separado |
+| 4 | Ajustes contábeis Invoice 'A' | 5 linhas | Remover |
+| 5 | StockCode não-produto (POST, DOT, M, etc.) | 6.093 linhas | Remover |
+| 6 | Price zero — movimentações internas | 6.202 linhas | Remover |
+| 7 | Price negativo — bad debt | 5 linhas | Remover |
+| 8 | Outliers Quantity acima do p99 | acima de 100 unidades | Cortar no p99 |
+| 9 | Customer ID como float | — | Converter para string |
+| 10 | Description nulos | 4.382 linhas (0,41%) | Remover |
+
+### Insights de negócio descobertos
+
+**Perfil do negócio**
+- B2B confirmado — compras em horário comercial, ausência total nos fins de semana
+- 91,9% das transações são do Reino Unido
+- Ticket médio baixo — 99% dos produtos entre £1 e £18
+- Quantidades em múltiplos (6, 12, 24) — compras por caixa
+
+**Sazonalidade**
+- Pico absoluto em Novembro (Black Friday + pré-Natal)
+- Queda brusca em Janeiro e Fevereiro — maior janela de risco de churn
+- Padrão consistente e repetido em 2010 e 2011 — negócio previsível
+
+**Janela de compra ideal**
+- Dia: Quinta-feira
+- Horário: entre 10h e 14h
+
+**Concentração de receita — Pareto confirmado**
+- Top 10% dos clientes → 53,9% da receita
+- Top 20% dos clientes → 70,6% da receita
+- Top 50% dos clientes → 92,0% da receita
+
+**Perfis geográficos distintos**
+- Reino Unido: mercado principal, alta frequência, 5.410 clientes
+- EIRE (Irlanda): 5 clientes VIP, 806 pedidos — perfil distribuidor
+- Europa: mercado secundário com comportamento homogêneo
+
+**Produto estrela confirmado**
+- WHITE HANGING HEART T-LIGHT HOLDER: 96.683 unidades, 5.455 pedidos
+
+---
+
+*Documentação atualizada após conclusão do EDA.*
