@@ -284,7 +284,8 @@ Etapa 7 — Agente               → sistema vivo com IA
    Etapa 4 — Clusterização — K-Means
    Etapa 5 — Classificação — churn/conversão
    Etapa 6 — Pipeline automatizado
-   Etapa 7 — Agente com IA
+   Etapa 7 — App de Demonstração
+   Etapa 8 — Agente com IA
 ```
 
 ---
@@ -345,3 +346,111 @@ Etapa 7 — Agente               → sistema vivo com IA
 ---
 
 *Documentação atualizada após conclusão do EDA.*
+
+## 9. Roadmap do Projeto
+
+```
+✅ Etapa 0 — Estrutura e ambiente
+✅ Etapa 1 — EDA (01_eda.ipynb)
+✅ Etapa 2 — Preprocessing / ETL (02_preprocessing.ipynb)
+⏭️ Etapa 3 — Feature Engineering — RFM (03_segmentation.ipynb)
+   Etapa 4 — Clusterização — K-Means
+   Etapa 5 — Classificação — churn/conversão
+   Etapa 6 — Pipeline automatizado
+   Etapa 7 — App de Demonstração (Streamlit)
+   Etapa 8 — Agente com IA
+```
+
+---
+
+## 10. Resultados do EDA — `01_eda.ipynb`
+
+### Visão geral do dataset
+- **Total de linhas:** 1.067.371 (Year 2009-2010: 525.461 + Year 2010-2011: 541.910)
+- **Total de colunas:** 8
+- **Clientes únicos identificados:** 5.878
+- **Período:** Dezembro/2009 a Dezembro/2011
+
+### Problemas críticos — a tratar no ETL
+
+| # | Problema | Volume | Ação |
+|---|----------|--------|------|
+| 1 | Customer ID nulo | 243.007 linhas (22,77%) | Remover para análise RFM |
+| 2 | Duplicatas verdadeiras | 34.335 linhas (3,22%) | Remover |
+| 3 | Cancelamentos Invoice 'C' | 19.494 linhas (1,83%) | Remover / guardar separado |
+| 4 | Ajustes contábeis Invoice 'A' | 5 linhas | Remover |
+| 5 | StockCode não-produto (POST, DOT, M, etc.) | 6.093 linhas | Remover |
+| 6 | Price zero — movimentações internas | 6.202 linhas | Remover |
+| 7 | Price negativo — bad debt | 5 linhas | Remover |
+| 8 | Outliers Quantity acima do p99 | acima de 100 unidades | Cortar no p99 |
+| 9 | Customer ID como float | — | Converter para string |
+| 10 | Description nulos | 4.382 linhas (0,41%) | Remover |
+
+### Insights de negócio descobertos
+
+**Perfil do negócio**
+- B2B confirmado — compras em horário comercial, ausência total nos fins de semana
+- 91,9% das transações são do Reino Unido
+- Ticket médio baixo — 99% dos produtos entre £1 e £18
+- Quantidades em múltiplos (6, 12, 24) — compras por caixa
+
+**Sazonalidade**
+- Pico absoluto em Novembro (Black Friday + pré-Natal)
+- Queda brusca em Janeiro e Fevereiro — maior janela de risco de churn
+- Padrão consistente e repetido em 2010 e 2011 — negócio previsível
+
+**Janela de compra ideal**
+- Dia: Quinta-feira
+- Horário: entre 10h e 14h
+
+**Concentração de receita — Pareto confirmado**
+- Top 10% dos clientes → 53,9% da receita
+- Top 20% dos clientes → 70,6% da receita
+- Top 50% dos clientes → 92,0% da receita
+
+**Perfis geográficos distintos**
+- Reino Unido: mercado principal, alta frequência, 5.410 clientes
+- EIRE (Irlanda): 5 clientes VIP, 806 pedidos — perfil distribuidor
+- Europa: mercado secundário com comportamento homogêneo
+
+**Produto estrela confirmado**
+- WHITE HANGING HEART T-LIGHT HOLDER: 96.683 unidades, 5.455 pedidos
+
+---
+
+## 11. Resultados do Preprocessing — `02_preprocessing.ipynb`
+
+### Resumo do pipeline de limpeza
+
+| # | Etapa | Removidas | Acumulado |
+|---|-------|-----------|-----------|
+| 1 | Duplicatas | 34.335 | 1.033.036 |
+| 2 | Cancelamentos Invoice 'C' | 19.104 | 1.013.932 |
+| 3 | Ajustes contábeis Invoice 'A' | 6 | 1.013.926 |
+| 4 | StockCodes não-produto | 4.513 | 1.009.413 |
+| 5 | Price zero e negativo | 5.987 | 1.003.426 |
+| 6 | Quantity zero e negativo | 0 | 1.003.426 |
+| 7 | Customer ID nulos | 226.843 | 776.583 |
+| 8 | Description nulos | 0 | 776.583 |
+| 9 | Outliers Quantity (p99 > 144) | 5.868 | 770.715 |
+
+### Transformações aplicadas
+- `Customer ID` convertido de float para string
+- Coluna `TotalPrice` criada (`Quantity * Price`)
+
+### Resultado final
+- **Entrada:** 1.067.371 linhas
+- **Saída:** 770.715 linhas
+- **Removidas:** 296.656 linhas (27,79%)
+- **Nulos restantes:** zero em todas as colunas
+- **Arquivo gerado:** `data/processed/online_retail_clean.csv`
+
+### Observações importantes
+- Quantity negativa já estava 100% contida nos cancelamentos — remoção encadeada
+- Description nulos já eliminados em etapas anteriores — remoção encadeada
+- Outlier de Quantity no dataset limpo ficou em p99=144 (vs 100 estimado no EDA)
+- Máximo de TotalPrice £38.970 é legítimo — perfil B2B com volume alto
+
+---
+
+*Documentação atualizada após conclusão do Preprocessing.*
