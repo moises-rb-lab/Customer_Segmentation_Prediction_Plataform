@@ -19,16 +19,12 @@ Construir uma plataforma de segmentação de clientes que:
 **UCI Online Retail II**
 - URL: https://archive.ics.uci.edu/dataset/502/online+retail+ii
 - ~1 milhão de transações reais de e-commerce britânico (2009–2011)
-- Colunas principais: `CustomerID`, `InvoiceDate`, `Quantity`, `UnitPrice`, `Country`, `Description`
+- Colunas principais: `Invoice`, `StockCode`, `Description`, `Quantity`, `InvoiceDate`, `Price`, `Customer ID`, `Country`
 
 ### Por que esse dataset?
 - Volume suficiente para treinar e validar modelos
 - Estrutura que replica dados reais de e-commerce
 - Suporta clusterização, classificação e evolução para pipeline
-
-### Atenção aos 2 riscos principais do input:
-1. **~25% de CustomerID nulos** — tratar na etapa de limpeza
-2. **Devoluções misturadas com compras** — separar por quantidade negativa
 
 ### Aderência aos requisitos do projeto:
 | Requisito | Status |
@@ -175,24 +171,6 @@ __pycache__/
 
 ---
 
-## 8. Roadmap do Projeto
-
-```
-Etapa 1 — EDA                  → entender os dados
-Etapa 2 — Limpeza              → tratar nulos e devoluções
-Etapa 3 — Feature Engineering  → calcular RFM
-Etapa 4 — Clusterização        → K-Means para segmentar clientes
-Etapa 5 — Classificação        → predição de churn/conversão
-Etapa 6 — Pipeline             → automatizar o fluxo completo
-Etapa 7 — Agente               → sistema vivo com IA
-```
-
----
-
-*Documentação gerada durante o setup inicial do projeto.*
-
----
-
 ## 8. EDA — Principais Achados (01_eda.ipynb)
 
 ### 8.1 Visão geral do dataset
@@ -279,87 +257,98 @@ Etapa 7 — Agente               → sistema vivo com IA
 ```
 ✅ Etapa 0 — Estrutura e ambiente
 ✅ Etapa 1 — EDA (01_eda.ipynb)
-⏭️ Etapa 2 — Preprocessing / ETL (02_preprocessing.ipynb)
-   Etapa 3 — Feature Engineering — RFM
-   Etapa 4 — Clusterização — K-Means
-   Etapa 5 — Classificação — churn/conversão
-   Etapa 6 — Pipeline automatizado
-   Etapa 7 — App de Demonstração
-   Etapa 8 — Agente com IA
-```
-
----
-
-## 10. Resultados do EDA — `01_eda.ipynb`
-
-### Visão geral do dataset
-- **Total de linhas:** 1.067.371 (Year 2009-2010: 525.461 + Year 2010-2011: 541.910)
-- **Total de colunas:** 8
-- **Clientes únicos identificados:** 5.878
-- **Período:** Dezembro/2009 a Dezembro/2011
-
-### Problemas críticos — a tratar no ETL
-
-| # | Problema | Volume | Ação |
-|---|----------|--------|------|
-| 1 | Customer ID nulo | 243.007 linhas (22,77%) | Remover para análise RFM |
-| 2 | Duplicatas verdadeiras | 34.335 linhas (3,22%) | Remover |
-| 3 | Cancelamentos Invoice 'C' | 19.494 linhas (1,83%) | Remover / guardar separado |
-| 4 | Ajustes contábeis Invoice 'A' | 5 linhas | Remover |
-| 5 | StockCode não-produto (POST, DOT, M, etc.) | 6.093 linhas | Remover |
-| 6 | Price zero — movimentações internas | 6.202 linhas | Remover |
-| 7 | Price negativo — bad debt | 5 linhas | Remover |
-| 8 | Outliers Quantity acima do p99 | acima de 100 unidades | Cortar no p99 |
-| 9 | Customer ID como float | — | Converter para string |
-| 10 | Description nulos | 4.382 linhas (0,41%) | Remover |
-
-### Insights de negócio descobertos
-
-**Perfil do negócio**
-- B2B confirmado — compras em horário comercial, ausência total nos fins de semana
-- 91,9% das transações são do Reino Unido
-- Ticket médio baixo — 99% dos produtos entre £1 e £18
-- Quantidades em múltiplos (6, 12, 24) — compras por caixa
-
-**Sazonalidade**
-- Pico absoluto em Novembro (Black Friday + pré-Natal)
-- Queda brusca em Janeiro e Fevereiro — maior janela de risco de churn
-- Padrão consistente e repetido em 2010 e 2011 — negócio previsível
-
-**Janela de compra ideal**
-- Dia: Quinta-feira
-- Horário: entre 10h e 14h
-
-**Concentração de receita — Pareto confirmado**
-- Top 10% dos clientes → 53,9% da receita
-- Top 20% dos clientes → 70,6% da receita
-- Top 50% dos clientes → 92,0% da receita
-
-**Perfis geográficos distintos**
-- Reino Unido: mercado principal, alta frequência, 5.410 clientes
-- EIRE (Irlanda): 5 clientes VIP, 806 pedidos — perfil distribuidor
-- Europa: mercado secundário com comportamento homogêneo
-
-**Produto estrela confirmado**
-- WHITE HANGING HEART T-LIGHT HOLDER: 96.683 unidades, 5.455 pedidos
-
----
-
-*Documentação atualizada após conclusão do EDA.*
-
-## 9. Roadmap do Projeto
-
-```
-✅ Etapa 0 — Estrutura e ambiente
-✅ Etapa 1 — EDA (01_eda.ipynb)
 ✅ Etapa 2 — Preprocessing / ETL (02_preprocessing.ipynb)
-⏭️ Etapa 3 — Feature Engineering — RFM (03_segmentation.ipynb)
-   Etapa 4 — Clusterização — K-Means
-   Etapa 5 — Classificação — churn/conversão
-   Etapa 6 — Pipeline automatizado
-   Etapa 7 — App de Demonstração (Streamlit)
-   Etapa 8 — Agente com IA
+✅ Etapa 3 — Feature Engineering + Segmentação (03_segmentation.ipynb)
+✅ Etapa 4 — Classificação / Predição (04_prediction.ipynb)
+⏭️ Etapa 5 — Pipeline automatizado
+   Etapa 6 — App de Demonstração (Streamlit)
+   Etapa 7 — Agente com IA
 ```
+
+---
+
+## 13. Resultados da Predição — `04_prediction.ipynb`
+
+### Label de Churn
+- Churn = 1 → segmentos "Perdido" e "Em Risco" (3.400 clientes / 58,46%)
+- Churn = 0 → segmentos "VIP" e "Promissor" (2.416 clientes / 41,54%)
+
+### Divisão treino/teste
+- Treino: 4.652 clientes (80%)
+- Teste: 1.164 clientes (20%)
+- Estratificado — proporções idênticas em treino e teste
+
+### Comparação de modelos
+
+| Modelo | Acurácia | ROC-AUC |
+|--------|----------|---------|
+| Regressão Logística | 93% | 0.9846 |
+| Random Forest | 98% | 0.9993 |
+
+### Modelo vencedor — Random Forest
+- Apenas 18 erros em 1.164 predições
+- 9 falsos alarmes (Ativo classificado como Churn)
+- 9 misses (Churn classificado como Ativo)
+
+### Importância das features
+| Feature | Importância |
+|---------|-------------|
+| Recency | 73,0% |
+| Monetary | 13,7% |
+| Frequency | 13,4% |
+
+### Arquivos gerados
+- `models/random_forest_churn.pkl` — modelo Random Forest (2.05 MB)
+- `models/scaler_prediction.pkl` — scaler para predições
+- `data/features/rfm_com_predicoes.csv` — 5.816 clientes com probabilidade de churn
+
+---
+
+*Documentação atualizada após conclusão da Predição.*
+
+---
+
+## 12. Resultados da Segmentação — `03_segmentation.ipynb`
+
+### Pipeline RFM
+
+| Métrica | Descrição | Resultado |
+|---------|-----------|-----------|
+| Recency | Dias desde última compra | Mín: 1 / Mediana: 95 / Máx: 739 |
+| Frequency | Número de pedidos únicos | Mín: 1 / Mediana: 3 / Máx: 373 |
+| Monetary | Receita total por cliente | Mín: £2,90 / Mediana: £829 / Máx: £336.091 |
+
+### Transformações aplicadas
+- `log1p` nas 3 métricas — comprimir caudas longas
+- `StandardScaler` — normalizar para mesma escala
+- Método Elbow — k=4 identificado como número ideal de clusters
+
+### Segmentos gerados
+
+| Segmento | Clientes | Recency média | Frequency média | Monetary média | % Receita |
+|----------|----------|---------------|-----------------|----------------|-----------|
+| VIP | 1.179 | 27 dias | 19 pedidos | £8.589 | 70,66% |
+| Promissor | 1.237 | 29 dias | 3 pedidos | £807 | 6,96% |
+| Em Risco | 1.432 | 227 dias | 5 pedidos | £1.813 | 18,12% |
+| Perdido | 1.968 | 394 dias | 1 pedido | £310 | 4,26% |
+
+### Estratégias por segmento
+
+| Segmento | Estratégia |
+|----------|------------|
+| VIP | Proteger — programa de fidelidade, atendimento exclusivo |
+| Promissor | Desenvolver — incentivar frequência de compra |
+| Em Risco | Reativar urgente — campanha de reengajamento |
+| Perdido | Campanha de baixo custo ou aceitar perda |
+
+### Arquivos gerados
+- `models/kmeans_rfm.pkl` — modelo K-Means treinado
+- `models/scaler_rfm.pkl` — scaler para novos dados
+- `data/features/rfm_segmentado.csv` — 5.816 clientes segmentados
+
+---
+
+*Documentação atualizada após conclusão da Segmentação.*
 
 ---
 
