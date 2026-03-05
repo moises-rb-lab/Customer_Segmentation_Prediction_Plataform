@@ -260,10 +260,72 @@ __pycache__/
 ✅ Etapa 2 — Preprocessing / ETL (02_preprocessing.ipynb)
 ✅ Etapa 3 — Feature Engineering + Segmentação (03_segmentation.ipynb)
 ✅ Etapa 4 — Classificação / Predição (04_prediction.ipynb)
-⏭️ Etapa 5 — Pipeline automatizado
-   Etapa 6 — App de Demonstração (Streamlit)
-   Etapa 7 — Agente com IA
+✅ Etapa 5 — Pipeline automatizado (src/ + 05_pipeline_test.ipynb)
+✅ Etapa 6 — App de Demonstração (Streamlit)
+⏭️ Etapa 7 — Vitrine (README + notebook narrativo)
+   Etapa 8 — Agente com IA
 ```
+
+---
+
+## 15. App de Demonstração — `app.py`
+
+### Páginas do app
+
+| Página | Conteúdo |
+|--------|----------|
+| 📊 Visão Geral | KPIs dos 4 segmentos, gráficos e tabela resumo |
+| 🔍 Busca de Cliente | Consulta por ID + simulador de novo cliente |
+| 🎯 Estratégias | Ações recomendadas por segmento |
+
+### Como rodar
+```bash
+streamlit run app.py
+```
+
+---
+
+*Documentação atualizada após conclusão do App Streamlit.*
+
+---
+
+## 14. Resultados do Pipeline — `src/` + `05_pipeline_test.ipynb`
+
+### Arquivos src/ construídos
+
+| Arquivo | Responsabilidade |
+|---------|-----------------|
+| `preprocessing.py` | Carregar e limpar dados brutos |
+| `feature_engineering.py` | Calcular RFM e transformação log |
+| `segmentation.py` | Treinar K-Means e segmentar clientes |
+| `prediction.py` | Treinar Random Forest e predizer churn |
+| `evaluation.py` | Gerar relatórios e visualizações |
+| `pipeline.py` | Orquestrar todas as etapas |
+
+### Teste do pipeline completo
+- Pipeline rodou de ponta a ponta com `run_pipeline()` — um único comando
+- 770.715 linhas processadas
+- 5.816 clientes segmentados
+- 98% de acurácia reproduzida
+- Resultados 100% consistentes com os notebooks
+
+### Como rodar o pipeline
+```python
+from src.pipeline import run_pipeline
+
+rfm = run_pipeline()         # caminhos padrão
+# ou
+rfm = run_pipeline(paths=PATHS_CUSTOM)  # caminhos customizados
+```
+
+### Quando usar o pipeline
+- Novos dados chegarem para o sistema
+- Re-treinar os modelos com dados atualizados
+- Gerar relatórios atualizados
+
+---
+
+*Documentação atualizada após conclusão do Pipeline.*
 
 ---
 
